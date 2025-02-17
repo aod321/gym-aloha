@@ -3,6 +3,7 @@ import numpy as np
 from dm_control import mujoco
 from dm_control.rl import control
 from gymnasium import spaces
+import cv2
 
 from gym_aloha.constants import (
     ACTIONS,
@@ -20,7 +21,7 @@ from gym_aloha.utils import sample_box_pose, sample_insertion_pose
 
 class AlohaEnv(gym.Env):
     # TODO(aliberts): add "human" render_mode
-    metadata = {"render_modes": ["rgb_array"], "render_fps": 50}
+    metadata = {"render_modes": ["rgb_array", "human"], "render_fps": 50}
 
     def __init__(
         self,
@@ -86,24 +87,20 @@ class AlohaEnv(gym.Env):
         self.action_space = spaces.Box(low=-1, high=1, shape=(len(ACTIONS),), dtype=np.float32)
 
     def render(self):
-        return self._render(visualize=True)
+        if self.render_mode == "human":
+            image = self._render(visualize=True)
+            # Convert from RGB to BGR for OpenCV
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imshow("ALOHA Environment", image)
+            cv2.waitKey(1)  # 1ms delay
+            return None
+        else:
+            return self._render(visualize=True)
 
     def _render(self, visualize=False):
-        assert self.render_mode == "rgb_array"
-        width, height = (
-            (self.visualization_width, self.visualization_height)
-            if visualize
-            else (self.observation_width, self.observation_height)
-        )
-        # if mode in ["visualize", "human"]:
-        #     height, width = self.visualize_height, self.visualize_width
-        # elif mode == "rgb_array":
-        #     height, width = self.observation_height, self.observation_width
-        # else:
-        #     raise ValueError(mode)
-        # TODO(rcadene): render and visualizer several cameras (e.g. angle, front_close)
-        image = self._env.physics.render(height=height, width=width, camera_id="top")
-        return image
+        width = self.visualization_width if visualize else self.observation_width
+        height = self.visualization_height if visualize else self.observation_height
+        return self._env.physics.render(height=height, width=width, camera_id="top")
 
     def _make_env_task(self, task_name):
         # time limit is controlled by StepCounter in env factory

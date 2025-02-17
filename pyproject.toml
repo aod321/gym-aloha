@@ -15,7 +15,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "dm-control>=1.0.27",
     "gym-aloha-dummy",
+    "opencv-python>=4.11.0.86",
 ]
 
 [tool.uv.sources]
