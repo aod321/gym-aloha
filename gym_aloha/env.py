@@ -22,6 +22,7 @@ from gym_aloha.utils import sample_box_pose, sample_insertion_pose
 class AlohaEnv(gym.Env):
     # TODO(aliberts): add "human" render_mode
     metadata = {"render_modes": ["rgb_array", "human"], "render_fps": 50}
+    JOINTS = JOINTS  # Add this line to make JOINTS accessible as class attribute
 
     def __init__(
         self,
@@ -45,12 +46,27 @@ class AlohaEnv(gym.Env):
         self._env = self._make_env_task(self.task)
 
         if self.obs_type == "state":
-            raise NotImplementedError()
-            self.observation_space = spaces.Box(
-                low=np.array([0] * len(JOINTS)),  # ???
-                high=np.array([255] * len(JOINTS)),  # ???
-                dtype=np.float64,
-            )
+            # Define state observation space with joint positions and velocities
+            self.observation_space = spaces.Dict({
+                "joint_positions": spaces.Box(
+                    low=-np.pi,  # Joint angle lower limits
+                    high=np.pi,  # Joint angle upper limits
+                    shape=(len(JOINTS),),
+                    dtype=np.float64,
+                ),
+                "joint_velocities": spaces.Box(
+                    low=-10.0,  # Reasonable velocity limits
+                    high=10.0,
+                    shape=(len(JOINTS),),
+                    dtype=np.float64,
+                ),
+                "task_state": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(7,),  # [box_x, box_y, box_z, box_qw, box_qx, box_qy, box_qz]
+                    dtype=np.float64,
+                )
+            })
         elif self.obs_type == "pixels":
             self.observation_space = spaces.Dict(
                 {
@@ -83,6 +99,9 @@ class AlohaEnv(gym.Env):
                     ),
                 }
             )
+        else:
+            raise ValueError(f"Invalid observation type: {self.obs_type}. "
+                             f"Valid options are 'state', 'pixels', 'pixels_agent_pos'")
 
         self.action_space = spaces.Box(low=-1, high=1, shape=(len(ACTIONS),), dtype=np.float32)
 
@@ -134,7 +153,24 @@ class AlohaEnv(gym.Env):
 
     def _format_raw_obs(self, raw_obs):
         if self.obs_type == "state":
-            raise NotImplementedError()
+            # Get object pose based on task type
+            if self.task == "transfer_cube":
+                obj_name = "box"
+            elif self.task == "insertion":
+                obj_name = "peg"  # or whatever the object name is in insertion task
+            else:
+                raise ValueError(f"Unknown task: {self.task}")
+            
+            obj_pos = self._env.physics.named.data.xpos[obj_name]
+            obj_quat = self._env.physics.named.data.xquat[obj_name]
+            task_state = np.concatenate([obj_pos, obj_quat])
+            
+            obs = {
+                "joint_positions": raw_obs["qpos"].copy(),
+                "joint_velocities": raw_obs["qvel"].copy(),
+                "task_state": task_state,
+            }
+            return obs
         elif self.obs_type == "pixels":
             obs = {"top": raw_obs["images"]["top"].copy()}
         elif self.obs_type == "pixels_agent_pos":
