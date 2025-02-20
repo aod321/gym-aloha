@@ -1,6 +1,6 @@
 # gym-aloha
 
-A gym environment for ALOHA
+A gym environment for ALOHA with custom dummy robot model
 
 <img src="https://s2.loli.net/2025/02/20/wHSPmZL4NVMnYOz.gif" width="50%" alt="Example of ALOHA Dummy env"/>
 
