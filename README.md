@@ -7,41 +7,21 @@ A gym environment for ALOHA
 
 ## Installation
 
-Create a virtual environment with Python 3.10 and activate it, e.g. with [`miniconda`](https://docs.anaconda.com/free/miniconda/index.html):
-```bash
-conda create -y -n aloha python=3.10 && conda activate aloha
-```
+Install [UV](https://docs.astral.sh/uv/getting-started/installation/) then:
 
-Install gym-aloha:
 ```bash
-pip install gym-aloha
+git clone https://github.com/aod321/gym-aloha.git
+cd gym-aloha
+git checkout -b dummy_robot
+uv sync
+uv add --dev .
 ```
 
 
 ## Quickstart
 
-```python
-# example.py
-import imageio
-import gymnasium as gym
-import numpy as np
-import gym_aloha
-
-env = gym.make("gym_aloha/AlohaInsertion-v0")
-observation, info = env.reset()
-frames = []
-
-for _ in range(1000):
-    action = env.action_space.sample()
-    observation, reward, terminated, truncated, info = env.step(action)
-    image = env.render()
-    frames.append(image)
-
-    if terminated or truncated:
-        observation, info = env.reset()
-
-env.close()
-imageio.mimsave("example.mp4", np.stack(frames), fps=25)
+```bash
+uv run example.py
 ```
 
 
