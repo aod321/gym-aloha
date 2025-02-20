@@ -4,7 +4,7 @@ import numpy as np
 import gym_aloha
 from tqdm import tqdm
 
-env = gym.make("gym_aloha/AlohaInsertion-v0")
+env = gym.make("gym_aloha/AlohaDummyInsertion-v0")
 observation, info = env.reset()
 frames = []
 

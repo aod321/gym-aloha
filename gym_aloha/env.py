@@ -12,9 +12,9 @@ from gym_aloha.constants import (
     JOINTS,
 )
 from gym_aloha.tasks.sim import BOX_POSE, InsertionTask, TransferCubeTask
-from gym_aloha.tasks.sim_end_effector import (
-    InsertionEndEffectorTask,
-    TransferCubeEndEffectorTask,
+from gym_aloha.tasks.sim_dummy import (
+    InsertionDummyTask,
+    TransferCubeDummyTask,
 )
 from gym_aloha.utils import sample_box_pose, sample_insertion_pose
 
@@ -133,16 +133,14 @@ class AlohaEnv(gym.Env):
             xml_path = ASSETS_DIR / "bimanual_viperx_insertion.xml"
             physics = mujoco.Physics.from_xml_path(str(xml_path))
             task = InsertionTask()
-        elif task_name == "end_effector_transfer_cube":
-            raise NotImplementedError()
-            xml_path = ASSETS_DIR / "bimanual_viperx_end_effector_transfer_cube.xml"
+        elif task_name == "transfer_cube_dummy":
+            xml_path = ASSETS_DIR / "bimanual_dummy_transfer_cube.xml"
             physics = mujoco.Physics.from_xml_path(str(xml_path))
-            task = TransferCubeEndEffectorTask()
-        elif task_name == "end_effector_insertion":
-            raise NotImplementedError()
-            xml_path = ASSETS_DIR / "bimanual_viperx_end_effector_insertion.xml"
+            task = TransferCubeDummyTask()
+        elif task_name == "insertion_dummy":
+            xml_path = ASSETS_DIR / "bimanual_dummy_insertion.xml"
             physics = mujoco.Physics.from_xml_path(str(xml_path))
-            task = InsertionEndEffectorTask()
+            task = InsertionDummyTask()
         else:
             raise NotImplementedError(task_name)
 
@@ -158,6 +156,10 @@ class AlohaEnv(gym.Env):
                 obj_name = "box"
             elif self.task == "insertion":
                 obj_name = "peg"  # or whatever the object name is in insertion task
+            elif self.task == "transfer_cube_dummy":
+                obj_name = "box"
+            elif self.task == "insertion_dummy":
+                obj_name = "peg"
             else:
                 raise ValueError(f"Unknown task: {self.task}")
             
@@ -192,6 +194,10 @@ class AlohaEnv(gym.Env):
         if self.task == "transfer_cube":
             BOX_POSE[0] = sample_box_pose(seed)  # used in sim reset
         elif self.task == "insertion":
+            BOX_POSE[0] = np.concatenate(sample_insertion_pose(seed))  # used in sim reset
+        elif self.task == "transfer_cube_dummy":
+            BOX_POSE[0] = np.concatenate(sample_box_pose(seed))  # used in sim reset
+        elif self.task == "insertion_dummy":
             BOX_POSE[0] = np.concatenate(sample_insertion_pose(seed))  # used in sim reset
         else:
             raise ValueError(self.task)

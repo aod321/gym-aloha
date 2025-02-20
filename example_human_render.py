@@ -4,7 +4,7 @@ import numpy as np
 import gym_aloha
 from tqdm import tqdm
 
-env = gym.make("gym_aloha/AlohaInsertion-v0", render_mode="human")
+env = gym.make("gym_aloha/AlohaDummyInsertion-v0", render_mode="human")
 observation, info = env.reset()
 
 for _ in tqdm(range(1000)):
