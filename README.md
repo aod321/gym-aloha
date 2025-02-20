@@ -2,7 +2,7 @@
 
 A gym environment for ALOHA
 
-<img src="example.mp4" width="50%" alt="Example of ALOHA Dummy env"/>
+<img src="https://raw.githubusercontent.com/aod321/gym-aloha/refs/heads/main/example.mp4" width="50%" alt="Example of ALOHA Dummy env"/>
 
 
 ## Installation
