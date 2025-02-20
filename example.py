@@ -8,7 +8,7 @@ env = gym.make("gym_aloha/AlohaDummyInsertion-v0")
 observation, info = env.reset()
 frames = []
 
-for _ in tqdm(range(1000)):
+for _ in tqdm(range(100)):
     action = env.action_space.sample()
     observation, reward, terminated, truncated, info = env.step(action)
     image = env.render()

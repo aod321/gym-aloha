@@ -2,7 +2,7 @@
 
 A gym environment for ALOHA
 
-<img src="http://remicadene.com/assets/gif/aloha_act.gif" width="50%" alt="ACT policy on ALOHA env"/>
+<img src="example.mp4" width="50%" alt="Example of ALOHA Dummy env"/>
 
 
 ## Installation
